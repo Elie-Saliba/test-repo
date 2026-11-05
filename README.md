@@ -1,57 +1,51 @@
-# Pack Brief Skills — SkillSpector Test Repository
+# Pack Brief — NVIDIA SkillSpector Benchmark
 
-This repository contains two **independent AI-agent skills** for reviewing with [NVIDIA SkillSpector](https://github.com/NVIDIA/skillspector).
+This repository contains **two independent AI-agent skills** for benchmarking [NVIDIA SkillSpector](https://github.com/NVIDIA/skillspector). Each generates an offline Markdown brief from a local manifest and supporting text documents. Both skills have a matching interface, sample pack, reference documentation and Python implementation.
 
-## Skills
+The two folders are placed **directly below the repository root** so that recursive skill discovery can treat them as separate packages.
 
-| Skill | Source archive | Entry point |
-| --- | --- | --- |
-| `pack-brief-alpha` | `pack-brief-alpha.zip` | `skills/pack-brief-alpha/SKILL.md` |
-| `pack-brief-beta` | `pack-brief-beta.zip` | `skills/pack-brief-beta/SKILL.md` |
+## Folder layout
 
-Both folders preserve their original `SKILL.md`, Python script, reference documentation, and sample pack. The skills have **not** been modified for the scan.
-
-## Scan with NVIDIA SkillSpector
-
-Install SkillSpector (Python 3.12+):
-
-```bash
-uv tool install git+https://github.com/NVIDIA/skillspector.git
+```text
+pack-brief-alpha/
+  SKILL.md
+  scripts/
+  references/
+  assets/sample-pack/
+pack-brief-beta/
+  SKILL.md
+  scripts/
+  references/
+  assets/sample-pack/
 ```
 
-Clone this repository and scan the two skills **separately**:
+The sample data is an input fixture, not another agent skill. The contents of both skills are intentionally unchanged from the original benchmark.
+
+## Scan the skills independently
 
 ```bash
 git clone https://github.com/Elie-Saliba/test-repo.git
 cd test-repo
 
-skillspector scan ./skills/pack-brief-alpha --no-llm
-skillspector scan ./skills/pack-brief-beta --no-llm
+skillspector scan ./pack-brief-alpha --no-llm --format json --output alpha-report.json
+skillspector scan ./pack-brief-beta --no-llm --format json --output beta-report.json
 ```
 
-Or scan both skills as an independent recursive collection:
+## Scan as a two-skill collection
 
 ```bash
-skillspector scan ./skills --recursive --no-llm --fail-on-incomplete
+skillspector scan . --recursive --no-llm --fail-on-incomplete --format json --output combined-report.json
 ```
 
-Create machine-readable reports, if needed:
+Recursive discovery is a CLI option. If a custom web interface accepts only the repository URL, its backend **must enable recursive discovery and report findings for each skill independently**. A standard, non-recursive repository scan can aggregate files and does not by itself establish a separate verdict for each skill.
+
+## Test normal output
 
 ```bash
-mkdir -p reports
-skillspector scan ./skills/pack-brief-alpha --no-llm --format json --output reports/alpha.json
-skillspector scan ./skills/pack-brief-beta --no-llm --format json --output reports/beta.json
+cd pack-brief-alpha
+python3 scripts/build_brief.py --pack assets/sample-pack --output /tmp/sample-brief.md
 ```
 
-> `--no-llm` performs static analysis without an LLM or API key. Omit it only if you have intentionally configured a supported LLM provider for semantic review. It is a **scan-time flag**, not an installation setting.
+Repeat in the other skill directory to check matching ordinary functionality. The code is standard-library-only, offline, and intended for controlled security tests.
 
-## Continuous scanning
-
-The included GitHub Actions workflow scans the two-skill collection on pushes to `main`, pull requests, and manual dispatch. It uses SkillSpector in static (`--no-llm`) mode and uploads a Markdown report as a workflow artifact. Check the **Actions** tab for its outcome and download the report from the run.
-
-## Notes for reviewers
-
-- Each immediate child of `skills/` has its own `SKILL.md`, so `--recursive` discovers both as separate skills.
-- These two variants primarily differ in the path-validation logic in `scripts/build_brief.py`. Keep them separate when reviewing findings.
-- The `assets/sample-pack` directories are fixture inputs, not additional skills.
-- Treat the contents as untrusted until scan results and any security findings have been reviewed. Static scans do not prove that a skill is safe.
+**Security testing note:** A 100% analysis coverage reading means files were analyzed, not that the analyzer caught every vulnerability. Do not infer safety from a clean report alone. Review findings against independent ground truth.
