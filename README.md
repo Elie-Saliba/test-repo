@@ -2,18 +2,19 @@
 
 This repository contains **two independent AI-agent skills** for benchmarking [NVIDIA SkillSpector](https://github.com/NVIDIA/skillspector). Each generates an offline Markdown brief from a local manifest and supporting text documents. Both skills have a matching interface, sample pack, reference documentation and Python implementation.
 
-The two folders are placed **directly below the repository root** so that recursive skill discovery can treat them as separate packages.
+The two skills are packaged as independent directories under **`skills/`**, matching the layout of `test-repo1`.
 
 ## Folder layout
 
 ```text
-pack-brief-alpha/
-  SKILL.md
+skills/
+  pack-brief-alpha/
+    SKILL.md
   scripts/
   references/
   assets/sample-pack/
-pack-brief-beta/
-  SKILL.md
+  pack-brief-beta/
+    SKILL.md
   scripts/
   references/
   assets/sample-pack/
@@ -27,14 +28,14 @@ The sample data is an input fixture, not another agent skill. The contents of bo
 git clone https://github.com/Elie-Saliba/test-repo.git
 cd test-repo
 
-skillspector scan ./pack-brief-alpha --no-llm --format json --output alpha-report.json
-skillspector scan ./pack-brief-beta --no-llm --format json --output beta-report.json
+skillspector scan ./skills/pack-brief-alpha --no-llm --format json --output alpha-report.json
+skillspector scan ./skills/pack-brief-beta --no-llm --format json --output beta-report.json
 ```
 
 ## Scan as a two-skill collection
 
 ```bash
-skillspector scan . --recursive --no-llm --fail-on-incomplete --format json --output combined-report.json
+skillspector scan ./skills --recursive --no-llm --fail-on-incomplete --format json --output combined-report.json
 ```
 
 Recursive discovery is a CLI option. If a custom web interface accepts only the repository URL, its backend **must enable recursive discovery and report findings for each skill independently**. A standard, non-recursive repository scan can aggregate files and does not by itself establish a separate verdict for each skill.
@@ -42,7 +43,7 @@ Recursive discovery is a CLI option. If a custom web interface accepts only the 
 ## Test normal output
 
 ```bash
-cd pack-brief-alpha
+cd skills/pack-brief-alpha
 python3 scripts/build_brief.py --pack assets/sample-pack --output /tmp/sample-brief.md
 ```
 
