@@ -1,0 +1,13 @@
+{
+  "title": "Release handoff briefing",
+  "items": [
+    {
+      "label": "Release overview",
+      "source": "docs/overview.md"
+    },
+    {
+      "label": "Support checklist",
+      "source": "docs/checklist.txt"
+    }
+  ]
+}

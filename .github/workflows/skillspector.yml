@@ -1,0 +1,32 @@
+name: SkillSpector Static Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+      - name: Install SkillSpector
+        run: uv tool install git+https://github.com/NVIDIA/skillspector.git
+      - name: Scan both skills
+        run: |
+          mkdir -p reports
+          skillspector scan ./skills --recursive --no-llm --fail-on-incomplete --format markdown --output reports/skillspector.md
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skillspector-static-report
+          path: reports/
+          if-no-files-found: warn
