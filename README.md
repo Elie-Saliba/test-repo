@@ -10,14 +10,14 @@ The two skills are packaged as independent directories under **`skills/`**, matc
 skills/
   pack-brief-alpha/
     SKILL.md
-  scripts/
-  references/
-  assets/sample-pack/
+    scripts/build_brief.py
+    references/pack-format.md
+    assets/sample-pack/
   pack-brief-beta/
     SKILL.md
-  scripts/
-  references/
-  assets/sample-pack/
+    scripts/build_brief.py
+    references/pack-format.md
+    assets/sample-pack/
 ```
 
 The sample data is an input fixture, not another agent skill. The contents of both skills are intentionally unchanged from the original benchmark.
